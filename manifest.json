@@ -1,0 +1,22 @@
+{
+  "name": "珠源朱记记账系统",
+  "short_name": "朱记记账",
+  "description": "餐饮店专业记账系统 - 收支管理、客户管理、家庭开支分离",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f0f2f0",
+  "theme_color": "#2c5e2c",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
