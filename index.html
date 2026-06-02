@@ -13,446 +13,108 @@
     <link rel="apple-touch-icon" href="/icon-192.png">
     <title>珠源朱记专业记账系统 | 登录权限版</title>
     <style>
-        * {
-            box-sizing: border-box;
-            font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
-        }
+        * { box-sizing: border-box; font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif; }
+        body { background: #f0f2f0; margin: 0; padding: 20px; min-height: 100vh; }
 
-        body {
-            background: #f0f2f0;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        /* ===== 登录页面样式 ===== */
-        .login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-        .login-card {
-            background: white;
-            border-radius: 32px;
-            padding: 36px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-        .login-card h2 {
-            margin: 0 0 8px 0;
-            color: #2c5e2c;
-            font-size: 1.6rem;
-        }
-        .login-card .subtitle {
-            color: #666;
-            margin-bottom: 24px;
-            font-size: 0.9rem;
-        }
-        .login-card input {
-            width: 100%;
-            padding: 14px;
-            margin: 10px 0;
-            border-radius: 16px;
-            border: 1.5px solid #ddd;
-            font-size: 1rem;
-            outline: none;
-        }
-        .login-card input:focus {
-            border-color: #2c5e2c;
-        }
-        .login-card .btn {
-            width: 100%;
-            padding: 14px;
-            font-size: 1rem;
-            margin-top: 12px;
-            background: #2c5e2c;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .login-card .btn:hover {
-            background: #1a3a1a;
-        }
-        .error-msg {
-            color: #c25d3a;
-            font-size: 0.8rem;
-            margin-top: 8px;
-            text-align: center;
-            min-height: 20px;
-        }
-        .demo-info {
-            font-size: 0.7rem;
-            color: #888;
-            text-align: center;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #eee;
-        }
+        /* ===== 登录页面 ===== */
+        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+        .login-card { background: white; border-radius: 32px; padding: 36px; width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .login-card h2 { margin: 0 0 8px 0; color: #2c5e2c; font-size: 1.6rem; }
+        .login-card .subtitle { color: #666; margin-bottom: 24px; font-size: 0.9rem; }
+        .login-card input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 16px; border: 1.5px solid #ddd; font-size: 1rem; outline: none; }
+        .login-card input:focus { border-color: #2c5e2c; }
+        .login-card .btn { width: 100%; padding: 14px; font-size: 1rem; margin-top: 12px; background: #2c5e2c; color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: 600; }
+        .login-card .btn:hover { background: #1a3a1a; }
+        .error-msg { color: #c25d3a; font-size: 0.8rem; margin-top: 8px; text-align: center; min-height: 20px; }
+        .demo-info { font-size: 0.7rem; color: #888; text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee; }
 
         /* ===== 主应用 ===== */
-        .app-container {
-            max-width: 1600px;
-            margin: 0 auto;
-        }
+        .app-container { max-width: 1600px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg, #1a3a1a, #2c5e2c); color: white; padding: 16px 28px; border-radius: 24px 24px 0 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .header h1 { margin: 0; font-size: 1.6rem; display: flex; align-items: center; gap: 10px; }
+        .user-info { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 40px; font-size: 0.9rem; }
+        .user-role { font-size: 0.7rem; background: #ffc107; color: #333; padding: 2px 10px; border-radius: 20px; font-weight: 600; }
+        .user-role.admin { background: #ff9800; color: white; }
+        .logout-btn { background: rgba(255,255,255,0.25); border: none; color: white; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; }
+        .logout-btn:hover { background: rgba(255,255,255,0.4); }
+        .perm-banner { background: #fff3cd; color: #856404; padding: 8px 20px; font-size: 0.8rem; border-radius: 0 0 12px 12px; display: flex; justify-content: space-between; align-items: center; }
 
-        .header {
-            background: linear-gradient(135deg, #1a3a1a, #2c5e2c);
-            color: white;
-            padding: 16px 28px;
-            border-radius: 24px 24px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 1.6rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-size: 0.9rem;
-        }
-        .user-role {
-            font-size: 0.7rem;
-            background: #ffc107;
-            color: #333;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        .user-role.admin {
-            background: #ff9800;
-            color: white;
-        }
-        .logout-btn {
-            background: rgba(255,255,255,0.25);
-            border: none;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.4);
-        }
-
-        .perm-banner {
-            background: #fff3cd;
-            color: #856404;
-            padding: 8px 20px;
-            font-size: 0.8rem;
-            border-radius: 0 0 12px 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* 统计卡片区 */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-            padding: 24px 0;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 20px;
-            padding: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-left: 4px solid;
-        }
-
-        .stat-card .label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: #666;
-            margin-bottom: 8px;
-        }
-
-        .stat-card .amount {
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
-
+        /* 统计卡片 */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; padding: 24px 0; }
+        .stat-card { background: white; border-radius: 20px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid; transition: 0.2s; }
+        .stat-card.clickable { cursor: pointer; }
+        .stat-card.clickable:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .stat-card .label { font-size: 0.75rem; text-transform: uppercase; color: #666; margin-bottom: 8px; }
+        .stat-card .amount { font-size: 1.6rem; font-weight: 700; }
+        .stat-card .percent { font-size: 0.75rem; color: #888; margin-top: 4px; }
         .stat-card.business .amount { color: #2b6e3c; }
         .stat-card.personal .amount { color: #b45f2b; }
         .stat-card.cashflow .amount { color: #1f7a5a; }
 
-        .query-panel {
-            background: #f8f9f5;
-            border-radius: 16px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
+        .query-panel { background: #f8f9f5; border-radius: 16px; padding: 15px; margin-bottom: 20px; }
 
-        /* 双栏布局 */
-        .two-columns {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-panel {
-            flex: 1.2;
-            min-width: 300px;
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .records-panel {
-            flex: 2.5;
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .section-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            padding-left: 12px;
-            border-left: 4px solid #2c5e2c;
-        }
-
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            flex: 1;
-            min-width: 120px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #4a5b3c;
-            margin-bottom: 4px;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 12px;
-            border: 1.5px solid #e0e4d6;
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        input:focus, select:focus {
-            border-color: #2c5e2c;
-        }
-
-        .btn {
-            background: #2c5e2c;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .btn:hover {
-            background: #1a3a1a;
-        }
-        .btn:disabled {
-            background: #aaa;
-            cursor: not-allowed;
-        }
-
-        .btn-danger {
-            background: #c25d3a;
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 0.8rem;
-        }
-
-        .btn-blue {
-            background: #4a6fa5;
-        }
-        .btn-blue:hover {
-            background: #3a5a8a;
-        }
+        .two-columns { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
+        .form-panel { flex: 1.2; min-width: 300px; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .records-panel { flex: 2.5; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; padding-left: 12px; border-left: 4px solid #2c5e2c; }
+        .form-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 15px; }
+        .form-group { flex: 1; min-width: 120px; }
+        label { display: block; font-size: 0.75rem; font-weight: 600; color: #4a5b3c; margin-bottom: 4px; }
+        input, select, textarea { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1.5px solid #e0e4d6; font-size: 0.9rem; outline: none; }
+        input:focus, select:focus { border-color: #2c5e2c; }
+        .btn { background: #2c5e2c; color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn:hover { background: #1a3a1a; }
+        .btn:disabled { background: #aaa; cursor: not-allowed; }
+        .btn-danger { background: #c25d3a; }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .btn-blue { background: #4a6fa5; }
+        .btn-blue:hover { background: #3a5a8a; }
 
         /* 标签页 */
-        .tabs {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            border-bottom: 1px solid #e0e4d6;
-        }
-
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 10px 18px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            color: #666;
-            border-radius: 20px 20px 0 0;
-        }
-
-        .tab-btn.active {
-            color: #2c5e2c;
-            border-bottom: 3px solid #2c5e2c;
-            background: #f0f7f0;
-        }
+        .tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; border-bottom: 1px solid #e0e4d6; }
+        .tab-btn { background: none; border: none; padding: 10px 18px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #666; border-radius: 20px 20px 0 0; }
+        .tab-btn.active { color: #2c5e2c; border-bottom: 3px solid #2c5e2c; background: #f0f7f0; }
 
         /* 表格 */
-        .table-wrapper {
-            overflow-x: auto;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-
-        th {
-            text-align: left;
-            padding: 10px 8px;
-            background: #f4f7ef;
-            position: sticky;
-            top: 0;
-        }
-
-        td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #edece2;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
+        .table-wrapper { overflow-x: auto; max-height: 500px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { text-align: left; padding: 10px 8px; background: #f4f7ef; position: sticky; top: 0; }
+        td { padding: 10px 8px; border-bottom: 1px solid #edece2; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
         .badge-income { background: #d4edda; color: #155724; }
         .badge-expense { background: #f8d7da; color: #721c24; }
         .badge-paid { background: #d4edda; color: #155724; }
         .badge-unpaid { background: #ffe2d6; color: #bc5a2c; }
+        .action-btns { display: flex; gap: 4px; }
+        .edit-btn { background: none; border: none; cursor: pointer; color: #4a6fa5; font-size: 1.0rem; }
+        .edit-btn:hover { color: #2c5e2c; }
+        .delete-btn { background: none; border: none; cursor: pointer; color: #b38b6d; font-size: 1.1rem; }
+        .delete-btn:hover { color: #c25d3a; }
 
-        .delete-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #b38b6d;
-            font-size: 1.1rem;
-        }
-        .delete-btn:hover {
-            color: #c25d3a;
-        }
+        /* 搜索汇总 */
+        .search-summary { background: #e8f5e9; border-radius: 12px; padding: 10px 16px; margin-bottom: 12px; font-size: 0.8rem; display: none; }
+        .search-summary strong { color: #c25d3a; }
+
+        /* 模态框 */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(3px); }
+        .modal-card { background: white; border-radius: 24px; padding: 28px; width: 92%; max-width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .modal-card h3 { margin: 0 0 20px 0; color: #2c5e2c; }
+        .modal-card .form-group { margin-bottom: 12px; }
+        .modal-card .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+        .modal-card .btn-row .btn { flex: 1; }
+
+        /* 未付明细面板 */
+        .unpaid-detail-panel { background: #fff8e7; border-radius: 16px; padding: 16px; margin-top: 12px; border: 1px solid #ffe0a3; display: none; max-height: 400px; overflow-y: auto; }
 
         /* 权限管理面板 */
-        .admin-panel {
-            background: #fff8e7;
-            border-radius: 16px;
-            padding: 16px;
-            margin-top: 20px;
-            border: 1px solid #ffe0a3;
-        }
-        .perm-table {
-            width: 100%;
-            font-size: 0.75rem;
-            border-collapse: collapse;
-        }
-        .perm-table th {
-            background: #e8e8e8;
-            padding: 8px;
-        }
-        .perm-table td {
-            padding: 8px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-        .perm-table input[type="checkbox"] {
-            width: auto;
-        }
-        .delete-user-btn {
-            background: none;
-            border: none;
-            color: red;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .edit-user-btn {
-            background: none;
-            border: none;
-            color: #4a6fa5;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-right: 6px;
-        }
-        .edit-user-btn:hover {
-            color: #2c5e2c;
-        }
-        .user-edit-row {
-            background: #f8f9f5;
-        }
-        .user-edit-row td {
-            padding: 12px;
-        }
-        .user-edit-form {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .user-edit-form input {
-            width: 120px;
-            padding: 6px 10px;
-            font-size: 0.8rem;
-            border-radius: 8px;
-            border: 1.5px solid #ddd;
-        }
-        .user-edit-form .btn-sm {
-            font-size: 0.7rem;
-            padding: 5px 10px;
-        }
+        .admin-panel { background: #fff8e7; border-radius: 16px; padding: 16px; margin-top: 20px; border: 1px solid #ffe0a3; }
+        .perm-table { width: 100%; font-size: 0.75rem; border-collapse: collapse; }
+        .perm-table th { background: #e8e8e8; padding: 8px; }
+        .perm-table td { padding: 8px; text-align: center; border-bottom: 1px solid #ddd; }
+        .perm-table input[type="checkbox"] { width: auto; }
+        .delete-user-btn { background: none; border: none; color: red; cursor: pointer; font-size: 0.9rem; }
+        .edit-user-btn { background: none; border: none; color: #4a6fa5; cursor: pointer; font-size: 0.9rem; margin-right: 6px; }
+        .edit-user-btn:hover { color: #2c5e2c; }
 
         @media (max-width: 768px) {
             body { padding: 10px; }
@@ -481,6 +143,26 @@
     </div>
 </div>
 
+<!-- ===== 编辑模态框 ===== -->
+<div id="editModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+        <h3>✏️ 编辑流水记录</h3>
+        <input type="hidden" id="editId">
+        <div class="form-group"><label>日期</label><input type="date" id="editDate"></div>
+        <div class="form-group"><label>类型</label><select id="editType"><option value="income">收入</option><option value="expense">经营支出</option><option value="personal">家庭开支</option></select></div>
+        <div class="form-group" id="editSourceGroup"><label>收入来源</label><select id="editSource"><option value="微信">微信</option><option value="支付宝">支付宝</option><option value="现金">现金</option><option value="银行卡">银行卡</option></select></div>
+        <div class="form-group" id="editCategoryGroup"><label>支出类别</label><select id="editCategory"><option value="食材采购">食材采购</option><option value="房租水电">房租水电</option><option value="员工工资">员工工资</option><option value="设备维修">设备维修</option><option value="其他">其他</option></select></div>
+        <div class="form-group"><label>项目/明细</label><input type="text" id="editItem"></div>
+        <div class="form-group"><label>金额(¥)</label><input type="number" id="editAmount" step="0.01"></div>
+        <div class="form-group" id="editSettlementGroup"><label>结算方式</label><select id="editSettlement"><option value="现结">现结</option><option value="未付">未付(挂账)</option></select></div>
+        <div class="form-group"><label>备注</label><input type="text" id="editNote"></div>
+        <div class="btn-row">
+            <button class="btn" id="saveEditBtn">💾 保存</button>
+            <button class="btn" id="cancelEditBtn" style="background:#888;">取消</button>
+        </div>
+    </div>
+</div>
+
 <!-- ===== 主应用界面 ===== -->
 <div id="mainApp" style="display:none;">
 <div class="app-container">
@@ -494,14 +176,20 @@
     </div>
     <div class="perm-banner" id="permBanner"></div>
 
-    <!-- 6个统计卡片 -->
+    <!-- 统计卡片 -->
     <div class="stats-grid" id="statsGrid">
         <div class="stat-card business"><div class="label">💰 营业收入</div><div class="amount" id="businessIncome">¥0</div></div>
         <div class="stat-card business"><div class="label">📦 经营支出</div><div class="amount" id="businessExpense">¥0</div></div>
-        <div class="stat-card business"><div class="label">🏪 经营净利润</div><div class="amount" id="businessProfit">¥0</div></div>
+        <div class="stat-card business"><div class="label">🏪 经营净利润</div><div class="amount" id="businessProfit">¥0</div><div class="percent" id="profitPercent"></div></div>
         <div class="stat-card personal"><div class="label">🏠 家庭开支</div><div class="amount" id="personalExpense">¥0</div></div>
         <div class="stat-card cashflow"><div class="label">💎 剩余资金</div><div class="amount" id="remainingCash">¥0</div></div>
-        <div class="stat-card"><div class="label">📋 未付应付款</div><div class="amount" id="unpaidTotal">¥0</div></div>
+        <div class="stat-card clickable" id="unpaidCard"><div class="label">📋 未付应付款 👆</div><div class="amount" id="unpaidTotal">¥0</div><div class="percent" style="color:#bc5a2c;">点击查看明细</div></div>
+    </div>
+
+    <!-- 未付明细面板（点击未付卡片展开） -->
+    <div class="unpaid-detail-panel" id="unpaidDetailPanel">
+        <div class="section-title" style="font-size:1rem;">📋 未付应付款明细</div>
+        <div id="unpaidDetailContent"></div>
     </div>
 
     <!-- 查询统计区 -->
@@ -509,7 +197,7 @@
         <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
             <div class="form-group" style="min-width: 100px;"><label>📅 起始日期</label><input type="date" id="queryDateFrom"></div>
             <div class="form-group" style="min-width: 100px;"><label>📅 截止日期</label><input type="date" id="queryDateTo"></div>
-            <div class="form-group" style="min-width: 100px;"><label>📊 统计维度</label><select id="queryDimension"><option value="day">按日</option><option value="month">按月</option><option value="year">按年</option></select></div>
+            <div class="form-group" style="min-width: 100px;"><label>📊 统计维度</label><select id="queryDimension"><option value="day">按日</option><option value="month">按月</option><option value="year">按年</option><option value="supplier">按供应商(未付)</option></select></div>
             <button class="btn btn-sm" id="queryBtn">🔍 查询统计</button>
             <button class="btn btn-sm" id="resetQueryBtn" style="background:#888;">重置</button>
         </div>
@@ -565,18 +253,19 @@
                 <div class="section-title">客户/进货商管理</div>
                 <div class="form-row"><div class="form-group"><label>名称</label><input type="text" id="contactName" placeholder="客户或供应商名称"></div>
                 <div class="form-group"><label>类型</label><select id="contactType"><option value="customer">客户</option><option value="supplier">进货商/供应商</option></select></div></div>
-                <div class="form-group"><label>联系电话/地址</label><input type="text" id="contactInfo" placeholder="电话或地址"></div>
+                <div class="form-row"><div class="form-group"><label>电话</label><input type="text" id="contactPhone" placeholder="联系电话"></div>
+                <div class="form-group"><label>地址</label><input type="text" id="contactAddress" placeholder="地址"></div></div>
                 <button class="btn" id="addContactBtn">➕ 添加联系人</button>
                 <div style="margin-top: 20px;"><div class="section-title">联系人列表</div><div id="contactList" style="max-height:200px; overflow-y:auto; font-size:0.8rem;"></div></div>
             </div>
 
-            <!-- 权限管理面板（仅管理员可见） -->
+            <!-- 权限管理面板 -->
             <div id="admin-tab" class="tab-content" style="display:none;">
                 <div class="section-title">👑 用户权限管理</div>
                 <div class="admin-panel">
                     <div id="userManagementArea"></div>
                     <button class="btn btn-blue" id="addUserBtn" style="margin-top:12px;">➕ 新增员工账号</button>
-                    <div style="margin-top:10px; font-size:0.7rem; color:#666;">权限说明：管理员可增删改查所有数据；员工默认只能添加记录，不能删除/修改。可单独为员工开放删除权限。</div>
+                    <div style="margin-top:10px; font-size:0.7rem; color:#666;">权限说明：管理员可增删改查所有数据；员工默认只能添加记录。</div>
                 </div>
             </div>
         </div>
@@ -587,11 +276,15 @@
             </div>
             <div style="margin-bottom: 12px; display: flex; gap: 8px;">
                 <select id="listFilterType" style="width:auto;"><option value="all">全部</option><option value="income">收入</option><option value="expense">经营支出</option><option value="personal">家庭开支</option></select>
-                <input type="text" id="searchKeyword" placeholder="搜索类别/客户" style="flex:1;">
+                <input type="text" id="searchKeyword" placeholder="搜索项目明细/结算备注/来源/客户" style="flex:1;">
                 <button id="clearDataBtn" class="btn-danger btn-sm" style="background:#aa6f55;">清空全部</button>
             </div>
+            <!-- 搜索未付汇总 -->
+            <div class="search-summary" id="searchSummary">
+                📋 搜索到 <span id="searchTotal">0</span> 条记录，其中未付合计：<strong>¥<span id="searchUnpaid">0</span></strong>（<span id="searchUnpaidCount">0</span>笔）
+            </div>
             <div class="table-wrapper">
-                <table id="recordsTable"><thead><tr><th>日期</th><th>类型</th><th>来源/类别</th><th>项目/明细</th><th>金额</th><th>结算/备注</th><th></th></tr></thead><tbody id="recordsTbody"></tbody></table>
+                <table id="recordsTable"><thead><tr><th>日期</th><th>类型</th><th>来源/类别</th><th>项目/明细</th><th>金额</th><th>结算/备注</th><th>操作</th></tr></thead><tbody id="recordsTbody"></tbody></table>
             </div>
         </div>
     </div>
@@ -600,17 +293,15 @@
 
 <script>
     // ========== 数据结构 ==========
-    let currentUser = null;     // 当前登录用户
-    let users = [];             // 用户列表
-    let transactions = [];      // 收支记录
-    let contacts = [];          // 客户/供应商列表
+    let currentUser = null;
+    let users = [];
+    let transactions = [];
+    let contacts = [];
 
     const STORAGE_KEY = 'restaurant_pro_data_v3';
-
-    // ========== API 同步层 ==========
-    // 通过 http/https 访问时自动启用服务器同步，本地 file:// 打开时用 localStorage
     const IS_DEPLOYED = window.location.protocol.startsWith('http');
 
+    // ========== API 层 ==========
     async function apiGet(path) {
         if (!IS_DEPLOYED) return null;
         try { const r = await fetch(path); if (r.ok) return await r.json(); } catch (e) {}
@@ -624,13 +315,20 @@
         } catch (e) {}
         return null;
     }
+    async function apiPut(path, data) {
+        if (!IS_DEPLOYED) return null;
+        try {
+            const r = await fetch(path, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            if (r.ok) return await r.json();
+        } catch (e) {}
+        return null;
+    }
     async function apiDelete(path) {
         if (!IS_DEPLOYED) return null;
         try { const r = await fetch(path, { method: 'DELETE' }); if (r.ok) return await r.json(); } catch (e) {}
         return null;
     }
 
-    // 默认用户
     const DEFAULT_USERS = [
         { id: 1, username: 'admin', password: 'admin123', role: 'admin', permissions: { canAdd: true, canEdit: true, canDelete: true, canManageUsers: true } },
         { id: 2, username: 'staff', password: 'staff123', role: 'staff', permissions: { canAdd: true, canEdit: false, canDelete: false, canManageUsers: false } }
@@ -638,44 +336,36 @@
 
     // ========== 数据初始化 ==========
     async function initData() {
-        // 部署模式：优先从服务器加载交易和联系人
         if (IS_DEPLOYED) {
-            const [txData, ctData] = await Promise.all([apiGet('/api/transactions'), apiGet('/api/contacts')]);
+            const [txData, ctData, userData] = await Promise.all([
+                apiGet('/api/transactions'), apiGet('/api/contacts'), apiGet('/api/users')
+            ]);
             if (txData && Array.isArray(txData)) {
-                transactions = txData.map(t => {
-                    const rec = { ...t };
-                    // 统一 id 字段（MongoDB 用 _id，内存用 _id）
-                    rec.id = t._id || t.id;
-                    return rec;
-                });
+                transactions = txData.map(t => { t.id = t._id || t.id; return t; });
             }
             if (ctData && Array.isArray(ctData)) {
-                contacts = ctData.map(c => {
-                    const rec = { ...c };
-                    rec.id = c._id || c.id;
-                    return rec;
-                });
+                contacts = ctData.map(c => { c.id = c._id || c.id; return c; });
+            }
+            if (userData && Array.isArray(userData)) {
+                users = userData;
             }
         }
 
-        // 用户始终从 localStorage 加载
+        // 用户从 localStorage 作为后备
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
             try {
                 const data = JSON.parse(stored);
-                users = data.users || DEFAULT_USERS;
-                // 非部署模式或服务器没数据时，用 localStorage 的数据
-                if (!IS_DEPLOYED || transactions.length === 0) {
-                    transactions = data.transactions || [];
-                    contacts = data.contacts || [];
-                }
+                if (!IS_DEPLOYED || users.length === 0) users = data.users || DEFAULT_USERS;
+                if (!IS_DEPLOYED || transactions.length === 0) transactions = data.transactions || [];
+                if (!IS_DEPLOYED || contacts.length === 0) contacts = data.contacts || [];
             } catch (e) { resetDefaultData(); }
         } else if (transactions.length === 0 && contacts.length === 0) {
             resetDefaultData();
         }
     }
 
-    async function resetDefaultData() {
+    function resetDefaultData() {
         const today = new Date().toISOString().split('T')[0];
         transactions = [
             { id: 'demo1', date: today, type: 'income', source: '微信', item: '午餐堂食', amount: 1280, settlement: '现结', note: '老客户张先生' },
@@ -685,46 +375,38 @@
             { id: 'demo5', date: today, type: 'personal', category: '家庭开支', item: '买菜日用', amount: 156, settlement: '现结', note: '不计入经营' }
         ];
         contacts = [
-            { id: 'c1', name: '张先生', type: 'customer', info: '130xxxx' },
-            { id: 'c2', name: '李记批发', type: 'supplier', info: '蔬菜市场' }
+            { id: 'c1', name: '张先生', type: 'customer', phone: '130xxxx', address: '' },
+            { id: 'c2', name: '李记批发', type: 'supplier', phone: '', address: '蔬菜市场' }
         ];
         users = JSON.parse(JSON.stringify(DEFAULT_USERS));
-        await syncToServer();
         saveToLocal();
     }
 
     function saveToLocal() {
-        // localStorage 只保存用户信息（登录认证）
-        // 交易和联系人在部署模式走 API，本地模式才存 localStorage
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
             transactions: IS_DEPLOYED ? [] : transactions,
             contacts: IS_DEPLOYED ? [] : contacts,
-            users
+            users: IS_DEPLOYED ? [] : users
         }));
     }
 
-    // 部署模式：将本地数据同步到服务器（首次迁移用）
-    async function syncToServer() {
-        if (!IS_DEPLOYED) return;
-        for (const t of transactions) {
-            const { id, ...rest } = t;
-            const result = await apiPost('/api/transactions', rest);
-            if (result && result.record) t.id = result.record._id || result.record.id;
-        }
-        for (const c of contacts) {
-            const { id, ...rest } = c;
-            const result = await apiPost('/api/contacts', rest);
-            if (result && result.record) c.id = result.record._id || result.record.id;
-        }
-    }
-
     // ========== 登录系统 ==========
-    function login(username, password) {
-        if (!users || users.length === 0) initData();
+    async function login(username, password) {
+        // 部署模式：通过服务器验证
+        if (IS_DEPLOYED) {
+            const result = await apiPost('/api/auth/login', { username, password });
+            if (result && result.user) {
+                currentUser = result.user;
+                return true;
+            }
+            return false;
+        }
+        // 本地模式：从 users 数组验证
+        if (!users || users.length === 0) await initData();
         const user = users.find(u => u.username === username && u.password === password);
         if (user) {
             currentUser = { ...user };
-            delete currentUser.password; // 不在内存中保留密码
+            delete currentUser.password;
             return true;
         }
         return false;
@@ -737,77 +419,45 @@
         document.getElementById('loginUsername').value = '';
         document.getElementById('loginPassword').value = '';
         document.getElementById('loginError').textContent = '';
+        document.getElementById('unpaidDetailPanel').style.display = 'none';
     }
 
     // ========== 权限检查 ==========
-    function isAdmin() {
-        return currentUser?.role === 'admin';
-    }
-
-    function canEdit() {
-        return isAdmin() || currentUser?.permissions?.canEdit === true;
-    }
-
-    function canDelete() {
-        return isAdmin() || currentUser?.permissions?.canDelete === true;
-    }
-
-    function canManageUsers() {
-        return isAdmin() || currentUser?.permissions?.canManageUsers === true;
-    }
-
+    function isAdmin() { return currentUser?.role === 'admin'; }
+    function canEdit() { return isAdmin() || currentUser?.permissions?.canEdit === true; }
+    function canDelete() { return isAdmin() || currentUser?.permissions?.canDelete === true; }
+    function canManageUsers() { return isAdmin() || currentUser?.permissions?.canManageUsers === true; }
     function canAdd() {
         if (isAdmin()) return true;
         if (currentUser?.permissions?.canAdd === true) return true;
-        if (currentUser?.role === 'staff') return true; // 员工默认可添加
+        if (currentUser?.role === 'staff') return true;
         return false;
     }
 
-    // ========== UI权限应用 ==========
     function applyUIPermissions() {
         const addPerm = canAdd();
         const delPerm = canDelete();
         const manageUser = canManageUsers();
 
-        // 显示用户名和角色
         document.getElementById('currentUserName').textContent = currentUser?.username || '';
         const roleEl = document.getElementById('currentUserRole');
         roleEl.textContent = isAdmin() ? '管理员' : '员工';
         roleEl.className = 'user-role' + (isAdmin() ? ' admin' : '');
 
-        // 显示/隐藏权限管理标签
         const adminTabBtn = document.getElementById('adminTabBtn');
-        if (adminTabBtn) {
-            adminTabBtn.style.display = manageUser ? 'inline-block' : 'none';
-        }
+        if (adminTabBtn) adminTabBtn.style.display = manageUser ? 'inline-block' : 'none';
 
-        // 控制添加按钮
         const addBtns = ['addIncomeBtn', 'addExpenseBtn', 'addPersonalBtn', 'addContactBtn'];
-        addBtns.forEach(id => {
-            const btn = document.getElementById(id);
-            if (btn) btn.disabled = !addPerm;
-        });
+        addBtns.forEach(id => { const btn = document.getElementById(id); if (btn) btn.disabled = !addPerm; });
 
-        // 控制清空按钮
         const clearBtn = document.getElementById('clearDataBtn');
         if (clearBtn) clearBtn.disabled = !delPerm;
 
-        // 权限提示横幅
         const banner = document.getElementById('permBanner');
         if (banner) {
-            if (!addPerm) {
-                banner.innerHTML = '⚠️ 当前为只读模式，您无法添加或修改数据。请联系管理员。';
-                banner.style.background = '#fff3cd';
-                banner.style.color = '#856404';
-            } else if (!delPerm && addPerm) {
-                banner.innerHTML = '📝 您有添加权限，但不能删除记录。';
-                banner.style.background = '#e8f5f0';
-                banner.style.color = '#2c5e2c';
-            } else {
-                banner.innerHTML = '✅ 您拥有完整操作权限。';
-                banner.style.background = '#d4edda';
-                banner.style.color = '#155724';
-            }
+            if (!addPerm) { banner.innerHTML = '⚠️ 当前为只读模式，您无法添加或修改数据。请联系管理员。'; banner.style.background = '#fff3cd'; banner.style.color = '#856404'; }
+            else if (!delPerm && addPerm) { banner.innerHTML = '📝 您有添加权限，但不能删除记录。'; banner.style.background = '#e8f5f0'; banner.style.color = '#2c5e2c'; }
+            else { banner.innerHTML = '✅ 您拥有完整操作权限。'; banner.style.background = '#d4edda'; banner.style.color = '#155724'; }
             if (isAdmin()) banner.innerHTML += ' [管理员]';
             else banner.innerHTML += ' [员工]';
         }
@@ -823,77 +473,58 @@
 
         const adminMode = isAdmin();
         users.forEach(u => {
-            // 非管理员只能看到自己的信息
             if (!adminMode && u.username !== currentUser?.username) return;
 
             if (u.role === 'admin') {
-                html += `<tr>
-                    <td><b>${u.username}</b></td>
-                    <td>管理员</td>
-                    <td>✅</td><td>✅</td><td>✅</td>
-                    <td><button class="edit-user-btn" data-user="${u.username}">✏️ 编辑</button></td>
-                </tr>`;
+                html += `<tr><td><b>${u.username}</b></td><td>管理员</td><td>✅</td><td>✅</td><td>✅</td>
+                    <td><button class="edit-user-btn" data-user="${u.username}">✏️ 编辑</button></td></tr>`;
                 return;
             }
-            // 管理员看全部员工，非管理员只看自己
             if (adminMode) {
-                html += `<tr>
-                    <td>${u.username}</td>
-                    <td>${u.role}</td>
+                html += `<tr><td>${u.username}</td><td>${u.role}</td>
                     <td><input type="checkbox" class="perm-check" data-user="${u.username}" data-perm="canAdd" ${u.permissions?.canAdd !== false ? 'checked' : ''}></td>
                     <td><input type="checkbox" class="perm-check" data-user="${u.username}" data-perm="canDelete" ${u.permissions?.canDelete === true ? 'checked' : ''}></td>
                     <td><input type="checkbox" class="perm-check" data-user="${u.username}" data-perm="canManageUsers" ${u.permissions?.canManageUsers === true ? 'checked' : ''}></td>
-                    <td>
-                        <button class="edit-user-btn" data-user="${u.username}">✏️</button>
-                        <button class="delete-user-btn" data-user="${u.username}">🗑️</button>
-                    </td>
-                </tr>`;
+                    <td><button class="edit-user-btn" data-user="${u.username}">✏️</button>
+                        <button class="delete-user-btn" data-user="${u.username}">🗑️</button></td></tr>`;
             } else {
-                // 员工看自己的信息：只读，只能改密码
-                html += `<tr>
-                    <td>${u.username}</td>
-                    <td>${u.role}</td>
+                html += `<tr><td>${u.username}</td><td>${u.role}</td>
                     <td>${u.permissions?.canAdd !== false ? '✅' : '❌'}</td>
                     <td>${u.permissions?.canDelete === true ? '✅' : '❌'}</td>
                     <td>${u.permissions?.canManageUsers === true ? '✅' : '❌'}</td>
-                    <td><button class="edit-user-btn" data-user="${u.username}">✏️ 改密</button></td>
-                </tr>`;
+                    <td><button class="edit-user-btn" data-user="${u.username}">✏️ 改密</button></td></tr>`;
             }
         });
         html += '</tbody></table>';
         container.innerHTML = html;
 
-        // 非管理员隐藏新增按钮
         const addBtn = document.getElementById('addUserBtn');
         if (addBtn) addBtn.style.display = adminMode ? 'inline-block' : 'none';
 
-        // 权限勾选事件
         container.querySelectorAll('.perm-check').forEach(cb => {
-            cb.addEventListener('change', () => {
+            cb.addEventListener('change', async () => {
                 const username = cb.getAttribute('data-user');
                 const perm = cb.getAttribute('data-perm');
                 const user = users.find(u => u.username === username);
                 if (user) {
                     if (!user.permissions) user.permissions = {};
                     user.permissions[perm] = cb.checked;
-                    saveToLocal();
+                    if (IS_DEPLOYED) {
+                        await apiPut('/api/users/' + username, { permissions: user.permissions });
+                    } else { saveToLocal(); }
                 }
             });
         });
 
-        // 编辑用户事件
         container.querySelectorAll('.edit-user-btn').forEach(btn => {
-            btn.onclick = () => {
-                const username = btn.getAttribute('data-user');
-                editUser(username);
-            };
+            btn.onclick = () => editUser(btn.getAttribute('data-user'));
         });
 
-        // 删除用户事件
         container.querySelectorAll('.delete-user-btn').forEach(btn => {
-            btn.onclick = () => {
+            btn.onclick = async () => {
                 const username = btn.getAttribute('data-user');
-                if (confirm(`确定删除用户 "${username}" 吗？此操作不可恢复。`)) {
+                if (confirm(`确定删除用户 "${username}" 吗？`)) {
+                    if (IS_DEPLOYED) await apiDelete('/api/users/' + username);
                     users = users.filter(u => u.username !== username);
                     saveToLocal();
                     renderUserManagement();
@@ -902,23 +533,23 @@
         });
     }
 
-    function addNewUser() {
+    async function addNewUser() {
         if (!canManageUsers()) return;
         const newName = prompt('请输入新员工用户名（英文字母或数字）:');
         if (!newName || !newName.trim()) return;
-        if (users.find(u => u.username === newName.trim())) {
-            alert('该用户名已存在，请换一个。');
-            return;
-        }
+        if (users.find(u => u.username === newName.trim())) { alert('该用户名已存在。'); return; }
         const newPwd = prompt('请设置初始密码:', '123456');
         if (!newPwd) return;
-        users.push({
-            id: Date.now(),
-            username: newName.trim(),
-            password: newPwd,
-            role: 'staff',
-            permissions: { canAdd: true, canDelete: false, canManageUsers: false }
-        });
+        const newUser = { username: newName.trim(), password: newPwd, role: 'staff', permissions: { canAdd: true, canDelete: false, canManageUsers: false } };
+        if (IS_DEPLOYED) {
+            const result = await apiPost('/api/users', newUser);
+            if (result && result.user) {
+                users.push({ ...result.user, password: newPwd });
+            }
+        } else {
+            newUser.id = Date.now();
+            users.push(newUser);
+        }
         saveToLocal();
         renderUserManagement();
         alert(`员工账号 "${newName.trim()}" 创建成功！`);
@@ -929,91 +560,47 @@
         const user = users.find(u => u.username === username);
         if (!user) return;
 
-        // 非管理员只能改自己的密码
         if (!isAdmin() && user.role !== 'admin') {
             const newPwd = prompt(`为用户 "${username}" 输入新密码:`, '');
-            if (!newPwd || !newPwd.trim()) { alert('密码不能为空，未修改。'); return; }
+            if (!newPwd || !newPwd.trim()) { alert('密码不能为空。'); return; }
             user.password = newPwd.trim();
+            if (IS_DEPLOYED) apiPut('/api/users/' + username, { password: newPwd.trim() });
             saveToLocal();
             renderUserManagement();
-            alert('密码已修改，下次登录时请使用新密码。');
+            alert('密码已修改。');
             return;
         }
 
-        // 定义改密码相关判断
-        let changeName = false;
-        let changePwd = false;
+        let choice = prompt(`修改 "${username}" 的信息：\n1 = 修改用户名\n2 = 修改密码\n3 = 用户名和密码都修改\n\n请输入 1、2 或 3：`, '2');
+        if (choice === null) return;
+        if (!['1','2','3'].includes(choice.trim())) { alert('无效选择。'); return; }
+        const changeName = (choice.trim() === '1' || choice.trim() === '3');
+        const changePwd = (choice.trim() === '2' || choice.trim() === '3');
 
-        // 管理员或管理权限用户，可以改用户名和密码
-        let choice;
-        if (user.role === 'admin') {
-            choice = prompt(
-                `修改管理员 "${username}" 的信息：\n\n` +
-                `1 = 修改用户名\n` +
-                `2 = 修改密码\n` +
-                `3 = 用户名和密码都修改\n\n` +
-                `请输入 1、2 或 3：`,
-                '2'
-            );
-        } else {
-            choice = prompt(
-                `修改员工 "${username}" 的信息：\n\n` +
-                `1 = 修改用户名\n` +
-                `2 = 修改密码\n` +
-                `3 = 用户名和密码都修改\n\n` +
-                `请输入 1、2 或 3：`,
-                '2'
-            );
-        }
-
-        if (choice === null) return; // 用户取消
-
-        if (['1','2','3'].includes(choice.trim())) {
-            changeName = (choice.trim() === '1' || choice.trim() === '3');
-            changePwd = (choice.trim() === '2' || choice.trim() === '3');
-        } else {
-            alert('无效选择，未做任何修改。');
-            return;
-        }
-
-        // 修改用户名
+        let newUsername = username;
         if (changeName) {
-            const newUsername = prompt(`当前用户名: ${username}\n请输入新用户名（英文字母或数字）:`, username);
-            if (!newUsername || !newUsername.trim()) {
-                alert('用户名不能为空，取消修改。');
-                return;
-            }
-            if (newUsername.trim() !== username && users.find(u => u.username === newUsername.trim())) {
-                alert('该用户名已存在，请换一个。');
-                return;
-            }
+            newUsername = prompt(`当前用户名: ${username}\n请输入新用户名:`, username);
+            if (!newUsername || !newUsername.trim()) { alert('用户名不能为空。'); return; }
+            if (newUsername.trim() !== username && users.find(u => u.username === newUsername.trim())) { alert('该用户名已存在。'); return; }
             user.username = newUsername.trim();
         }
 
-        // 修改密码
         if (changePwd) {
             const newPassword = prompt(`为用户 "${user.username}" 设置新密码:`, '');
-            if (newPassword === null) {
-                // 用户取消密码修改
-                if (!changeName) return; // 如果只改密码但取消了
-            } else if (newPassword.trim() === '') {
-                alert('密码不能为空，密码未修改。');
-            } else {
-                user.password = newPassword.trim();
-                // 如果正在编辑的是当前登录用户，提示下次登录生效
-                if (currentUser && currentUser.username === user.username) {
-                    setTimeout(() => alert('密码已修改，下次登录时请使用新密码。'), 200);
-                }
-            }
+            if (newPassword === null) { if (!changeName) return; }
+            else if (newPassword.trim() === '') { alert('密码不能为空。'); return; }
+            else { user.password = newPassword.trim(); }
         }
 
+        if (IS_DEPLOYED) {
+            const updateData = {};
+            if (changeName) updateData.username = user.username;
+            if (changePwd) updateData.password = user.password;
+            apiPut('/api/users/' + username, updateData);
+        }
         saveToLocal();
         renderUserManagement();
-        if (changeName) {
-            alert(`用户信息已更新！${changePwd ? '用户名和密码均已修改。' : '用户名已修改。'}`);
-        } else if (changePwd) {
-            alert('密码已修改！');
-        }
+        alert('用户信息已更新！');
     }
 
     // ========== 统计计算 ==========
@@ -1021,14 +608,13 @@
         let businessIncome = 0, businessExpense = 0, personalExpense = 0, unpaidTotal = 0;
         for (let t of transactions) {
             if (t.type === 'income') businessIncome += t.amount;
-            else if (t.type === 'expense') {
-                businessExpense += t.amount;
-                if (t.settlement === '未付') unpaidTotal += t.amount;
-            } else if (t.type === 'personal') personalExpense += t.amount;
+            else if (t.type === 'expense') { businessExpense += t.amount; if (t.settlement === '未付') unpaidTotal += t.amount; }
+            else if (t.type === 'personal') personalExpense += t.amount;
         }
         const businessProfit = businessIncome - businessExpense;
         const remainingCash = businessIncome - businessExpense - personalExpense;
-        return { businessIncome, businessExpense, businessProfit, personalExpense, remainingCash, unpaidTotal };
+        const profitPercent = businessIncome > 0 ? ((businessProfit / businessIncome) * 100) : 0;
+        return { businessIncome, businessExpense, businessProfit, personalExpense, remainingCash, unpaidTotal, profitPercent };
     }
 
     function updateStats() {
@@ -1036,6 +622,7 @@
         document.getElementById('businessIncome').innerHTML = `¥${s.businessIncome.toFixed(2)}`;
         document.getElementById('businessExpense').innerHTML = `¥${s.businessExpense.toFixed(2)}`;
         document.getElementById('businessProfit').innerHTML = `¥${s.businessProfit.toFixed(2)}`;
+        document.getElementById('profitPercent').innerHTML = `利润率 ${s.profitPercent.toFixed(1)}%`;
         document.getElementById('personalExpense').innerHTML = `¥${s.personalExpense.toFixed(2)}`;
         document.getElementById('remainingCash').innerHTML = `¥${s.remainingCash.toFixed(2)}`;
         document.getElementById('unpaidTotal').innerHTML = `¥${s.unpaidTotal.toFixed(2)}`;
@@ -1052,55 +639,142 @@
             filtered = filtered.filter(t =>
                 (t.item && t.item.toLowerCase().includes(kw)) ||
                 (t.note && t.note.toLowerCase().includes(kw)) ||
-                (t.source && t.source.toLowerCase().includes(kw))
+                (t.settlement && t.settlement.toLowerCase().includes(kw)) ||
+                (t.source && t.source.toLowerCase().includes(kw)) ||
+                (t.category && t.category.toLowerCase().includes(kw))
             );
         }
-        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+        filtered.sort((a, b) => b.date.localeCompare(a.date));
         const tbody = document.getElementById('recordsTbody');
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">暂无数据</td></tr>';
-            return;
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">暂无数据</td></tr>';
+        } else {
+            const showDelete = canDelete();
+            const showEdit = canEdit();
+            tbody.innerHTML = filtered.map(t => {
+                let typeLabel, typeClass;
+                if (t.type === 'income') { typeLabel = '收入'; typeClass = 'badge-income'; }
+                else if (t.type === 'expense') { typeLabel = '经营支出'; typeClass = 'badge-expense'; }
+                else { typeLabel = '家庭开支'; typeClass = 'badge'; }
+                const sourceOrCat = t.type === 'income' ? (t.source || '') : (t.type === 'expense' ? (t.category || '') : '家庭');
+                const settlementBadge = t.settlement
+                    ? (t.settlement === '现结' ? '<span class="badge badge-paid">现结</span>' : '<span class="badge badge-unpaid">未付</span>')
+                    : '';
+                let actions = '';
+                if (showEdit) actions += `<button class="edit-btn" data-id="${t.id}">✏️</button>`;
+                if (showDelete) actions += `<button class="delete-btn" data-id="${t.id}">🗑️</button>`;
+                if (!actions) actions = '<span style="color:#ccc;">—</span>';
+                return `<tr>
+                    <td>${t.date}</td>
+                    <td><span class="badge ${typeClass}">${typeLabel}</span></td>
+                    <td>${sourceOrCat}</td>
+                    <td>${t.item || ''}</td>
+                    <td style="color:${t.type === 'income' ? 'green' : 'red'}">${t.type === 'income' ? '+' : '-'}¥${t.amount.toFixed(2)}</td>
+                    <td>${settlementBadge} ${t.note || ''}</td>
+                    <td><div class="action-btns">${actions}</div></td>
+                </tr>`;
+            }).join('');
         }
 
-        const showDelete = canDelete();
-        tbody.innerHTML = filtered.map(t => {
-            let typeLabel, typeClass;
-            if (t.type === 'income') { typeLabel = '收入'; typeClass = 'badge-income'; }
-            else if (t.type === 'expense') { typeLabel = '经营支出'; typeClass = 'badge-expense'; }
-            else { typeLabel = '家庭开支'; typeClass = 'badge'; }
-            const sourceOrCat = t.type === 'income' ? t.source : (t.type === 'expense' ? t.category : '家庭');
-            const settlementBadge = t.settlement
-                ? (t.settlement === '现结' ? '<span class="badge badge-paid">现结</span>' : '<span class="badge badge-unpaid">未付</span>')
-                : '';
-            const delBtn = showDelete
-                ? `<button class="delete-btn" data-id="${t.id}">🗑️</button>`
-                : '<span style="color:#ccc;">—</span>';
-            return `<tr>
-                <td>${t.date}</td>
-                <td><span class="badge ${typeClass}">${typeLabel}</span></td>
-                <td>${sourceOrCat || ''}</td>
-                <td>${t.item || ''}</td>
-                <td style="color:${t.type === 'income' ? 'green' : 'red'}">${t.type === 'income' ? '+' : '-'}¥${t.amount.toFixed(2)}</td>
-                <td>${settlementBadge} ${t.note || ''}</td>
-                <td>${delBtn}</td>
-            </tr>`;
-        }).join('');
-
-        // 绑定删除事件
-        if (showDelete) {
+        // 绑定事件
+        if (canEdit()) {
+            tbody.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.onclick = () => openEditModal(btn.getAttribute('data-id'));
+            });
+        }
+        if (canDelete()) {
             tbody.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.onclick = () => deleteTransaction(btn.getAttribute('data-id'));
             });
         }
+
+        // 搜索汇总：统计未付
+        updateSearchSummary(filtered);
     }
 
-    async function deleteTransaction(id) {
-        if (!canDelete()) return alert('您没有删除权限，请联系管理员。');
-        if (IS_DEPLOYED) await apiDelete('/api/transactions/' + id);
-        transactions = transactions.filter(t => String(t.id) !== String(id));
+    function updateSearchSummary(filtered) {
+        const summary = document.getElementById('searchSummary');
+        const kw = currentFilter.keyword;
+        if (!kw) { summary.style.display = 'none'; return; }
+        const unpaidItems = filtered.filter(t => t.settlement === '未付');
+        if (unpaidItems.length === 0) { summary.style.display = 'none'; return; }
+        const unpaidTotal = unpaidItems.reduce((sum, t) => sum + t.amount, 0);
+        document.getElementById('searchTotal').textContent = filtered.length;
+        document.getElementById('searchUnpaid').textContent = unpaidTotal.toFixed(2);
+        document.getElementById('searchUnpaidCount').textContent = unpaidItems.length;
+        summary.style.display = 'block';
+    }
+
+    // ========== 编辑模态框 ==========
+    function openEditModal(id) {
+        const t = transactions.find(tx => String(tx.id) === String(id));
+        if (!t) return;
+        document.getElementById('editId').value = t.id;
+        document.getElementById('editDate').value = t.date;
+        document.getElementById('editType').value = t.type;
+        document.getElementById('editItem').value = t.item || '';
+        document.getElementById('editAmount').value = t.amount;
+        document.getElementById('editNote').value = t.note || '';
+        document.getElementById('editModal').style.display = 'flex';
+
+        // 根据类型显示/隐藏字段
+        toggleEditFields(t.type);
+
+        if (t.type === 'income') {
+            document.getElementById('editSource').value = t.source || '微信';
+        } else if (t.type === 'expense') {
+            document.getElementById('editCategory').value = t.category || '食材采购';
+            document.getElementById('editSettlement').value = t.settlement || '现结';
+        }
+    }
+
+    function toggleEditFields(type) {
+        document.getElementById('editSourceGroup').style.display = type === 'income' ? 'block' : 'none';
+        document.getElementById('editCategoryGroup').style.display = type === 'expense' ? 'block' : 'none';
+        document.getElementById('editSettlementGroup').style.display = type === 'expense' ? 'block' : 'none';
+    }
+
+    document.getElementById('editType').addEventListener('change', function() {
+        toggleEditFields(this.value);
+    });
+
+    document.getElementById('cancelEditBtn').onclick = () => {
+        document.getElementById('editModal').style.display = 'none';
+    };
+
+    document.getElementById('saveEditBtn').onclick = async () => {
+        const id = document.getElementById('editId').value;
+        const type = document.getElementById('editType').value;
+        const data = {
+            date: document.getElementById('editDate').value,
+            type: type,
+            item: document.getElementById('editItem').value,
+            amount: parseFloat(document.getElementById('editAmount').value),
+            note: document.getElementById('editNote').value
+        };
+        if (!data.amount || data.amount <= 0) { alert('请输入有效金额'); return; }
+
+        if (type === 'income') data.source = document.getElementById('editSource').value;
+        else if (type === 'expense') {
+            data.category = document.getElementById('editCategory').value;
+            data.settlement = document.getElementById('editSettlement').value;
+        } else {
+            data.category = '家庭开支';
+            data.settlement = '现结';
+        }
+
+        if (IS_DEPLOYED) {
+            await apiPut('/api/transactions/' + id, data);
+        }
+
+        const idx = transactions.findIndex(tx => String(tx.id) === String(id));
+        if (idx !== -1) {
+            transactions[idx] = { ...transactions[idx], ...data };
+        }
         saveToLocal();
         renderAll();
-    }
+        document.getElementById('editModal').style.display = 'none';
+    };
 
     // ========== 记录操作 ==========
     async function addIncome() {
@@ -1173,7 +847,8 @@
         const record = {
             name,
             type: document.getElementById('contactType').value,
-            info: document.getElementById('contactInfo').value
+            phone: document.getElementById('contactPhone').value,
+            address: document.getElementById('contactAddress').value
         };
         if (IS_DEPLOYED) {
             const result = await apiPost('/api/contacts', record);
@@ -1183,7 +858,8 @@
         contacts.push(record);
         saveToLocal(); renderContacts();
         document.getElementById('contactName').value = '';
-        document.getElementById('contactInfo').value = '';
+        document.getElementById('contactPhone').value = '';
+        document.getElementById('contactAddress').value = '';
     }
 
     function renderContacts() {
@@ -1191,11 +867,13 @@
         if (contacts.length === 0) { div.innerHTML = '<span style="color:#999;">暂无联系人</span>'; return; }
         const showDelete = canDelete();
         div.innerHTML = contacts.map(c => {
-            const delBtn = showDelete
-                ? `<button class="delete-btn" data-cid="${c.id}" style="float:right;">删</button>`
-                : '';
+            const delBtn = showDelete ? `<button class="delete-btn" data-cid="${c.id}" style="float:right;">删</button>` : '';
+            const phoneInfo = c.phone ? `📞 ${c.phone}` : '';
+            const addrInfo = c.address ? `📍 ${c.address}` : '';
+            const sep = phoneInfo && addrInfo ? ' | ' : '';
             return `<div style="padding:5px; border-bottom:1px solid #eee;">
-                <b>${c.name}</b> (${c.type === 'customer' ? '客户' : '供应商'}) ${c.info || ''} ${delBtn}
+                <b>${c.name}</b> (${c.type === 'customer' ? '客户' : '供应商'})
+                <span style="color:#666;font-size:0.75rem;"> ${phoneInfo}${sep}${addrInfo}</span> ${delBtn}
             </div>`;
         }).join('');
 
@@ -1212,6 +890,14 @@
         }
     }
 
+    async function deleteTransaction(id) {
+        if (!canDelete()) return alert('您没有删除权限，请联系管理员。');
+        if (IS_DEPLOYED) await apiDelete('/api/transactions/' + id);
+        transactions = transactions.filter(t => String(t.id) !== String(id));
+        saveToLocal();
+        renderAll();
+    }
+
     // ========== 查询统计 ==========
     function queryStats() {
         const fromDate = document.getElementById('queryDateFrom').value;
@@ -1222,7 +908,25 @@
         if (toDate) filtered = filtered.filter(t => t.date <= toDate);
 
         let resultHtml = '';
-        if (dimension === 'day') {
+        if (dimension === 'supplier') {
+            // 按供应商汇总未付
+            const group = {};
+            filtered.filter(t => t.type === 'expense' && t.settlement === '未付').forEach(t => {
+                const key = t.note || '未指定供应商';
+                if (!group[key]) group[key] = { total: 0, count: 0 };
+                group[key].total += t.amount;
+                group[key].count++;
+            });
+            const entries = Object.entries(group).sort((a, b) => b[1].total - a[1].total);
+            if (entries.length === 0) {
+                resultHtml = '<p style="color:#999;">暂无未付记录</p>';
+            } else {
+                resultHtml = '<table style="width:100%; font-size:0.8rem;"><tr><th>供应商</th><th>未付笔数</th><th>未付总额</th></tr>' +
+                    entries.map(([supplier, d]) =>
+                        `<tr><td><b>${supplier}</b></td><td>${d.count}笔</td><td style="color:red;">¥${d.total.toFixed(2)}</td></tr>`
+                    ).join('') + '</table>';
+            }
+        } else if (dimension === 'day') {
             const group = new Map();
             filtered.forEach(t => {
                 if (!group.has(t.date)) group.set(t.date, { income: 0, expense: 0, personal: 0 });
@@ -1231,10 +935,12 @@
                 else if (t.type === 'expense') g.expense += t.amount;
                 else g.personal += t.amount;
             });
-            resultHtml = '<table style="width:100%; font-size:0.8rem;"><tr><th>日期</th><th>收入</th><th>经营支出</th><th>家庭开支</th><th>日利润</th></tr>' +
-                Array.from(group.entries()).sort().map(([date, d]) =>
-                    `<tr><td>${date}</td><td>¥${d.income.toFixed(2)}</td><td>¥${d.expense.toFixed(2)}</td><td>¥${d.personal.toFixed(2)}</td><td>¥${(d.income - d.expense).toFixed(2)}</td></tr>`
-                ).join('') + '</table>';
+            resultHtml = '<table style="width:100%; font-size:0.8rem;"><tr><th>日期</th><th>收入</th><th>经营支出</th><th>家庭开支</th><th>日利润</th><th>利润率</th></tr>' +
+                Array.from(group.entries()).sort().map(([date, d]) => {
+                    const profit = d.income - d.expense;
+                    const profitPct = d.income > 0 ? ((profit / d.income) * 100).toFixed(1) : '0';
+                    return `<tr><td>${date}</td><td>¥${d.income.toFixed(2)}</td><td>¥${d.expense.toFixed(2)}</td><td>¥${d.personal.toFixed(2)}</td><td>¥${profit.toFixed(2)}</td><td>${profitPct}%</td></tr>`;
+                }).join('') + '</table>';
         } else if (dimension === 'month') {
             const group = new Map();
             filtered.forEach(t => {
@@ -1245,10 +951,12 @@
                 else if (t.type === 'expense') g.expense += t.amount;
                 else g.personal += t.amount;
             });
-            resultHtml = '<table style="width:100%;"><tr><th>月份</th><th>收入</th><th>支出</th><th>家庭开支</th><th>净利润</th></tr>' +
-                Array.from(group.entries()).sort().map(([mon, d]) =>
-                    `<tr><td>${mon}</td><td>¥${d.income.toFixed(2)}</td><td>¥${d.expense.toFixed(2)}</td><td>¥${d.personal.toFixed(2)}</td><td>¥${(d.income - d.expense).toFixed(2)}</td></tr>`
-                ).join('') + '</table>';
+            resultHtml = '<table style="width:100%;"><tr><th>月份</th><th>收入</th><th>支出</th><th>家庭开支</th><th>净利润</th><th>利润率</th></tr>' +
+                Array.from(group.entries()).sort().map(([mon, d]) => {
+                    const profit = d.income - d.expense;
+                    const profitPct = d.income > 0 ? ((profit / d.income) * 100).toFixed(1) : '0';
+                    return `<tr><td>${mon}</td><td>¥${d.income.toFixed(2)}</td><td>¥${d.expense.toFixed(2)}</td><td>¥${d.personal.toFixed(2)}</td><td>¥${profit.toFixed(2)}</td><td>${profitPct}%</td></tr>`;
+                }).join('') + '</table>';
         } else {
             const group = new Map();
             filtered.forEach(t => {
@@ -1259,27 +967,48 @@
                 else if (t.type === 'expense') g.expense += t.amount;
                 else g.personal += t.amount;
             });
-            resultHtml = '<table style="width:100%;"><tr><th>年份</th><th>收入</th><th>支出</th><th>家庭开支</th><th>净利润</th></tr>' +
-                Array.from(group.entries()).sort().map(([yr, d]) =>
-                    `<tr><td>${yr}</td><td>¥${d.income.toFixed(2)}</td><td>¥${d.expense.toFixed(2)}</td><td>¥${d.personal.toFixed(2)}</td><td>¥${(d.income - d.expense).toFixed(2)}</td></tr>`
-                ).join('') + '</table>';
+            resultHtml = '<table style="width:100%;"><tr><th>年份</th><th>收入</th><th>支出</th><th>家庭开支</th><th>净利润</th><th>利润率</th></tr>' +
+                Array.from(group.entries()).sort().map(([yr, d]) => {
+                    const profit = d.income - d.expense;
+                    const profitPct = d.income > 0 ? ((profit / d.income) * 100).toFixed(1) : '0';
+                    return `<tr><td>${yr}</td><td>¥${d.income.toFixed(2)}</td><td>¥${d.expense.toFixed(2)}</td><td>¥${d.personal.toFixed(2)}</td><td>¥${profit.toFixed(2)}</td><td>${profitPct}%</td></tr>`;
+                }).join('') + '</table>';
         }
         const resultDiv = document.getElementById('queryResult');
         resultDiv.innerHTML = `<strong>📊 统计结果 (${filtered.length}条记录)</strong><br>${resultHtml}`;
         resultDiv.style.display = 'block';
     }
 
-    // ========== 导出与清空 ==========
-    function exportCSV() {
-        // 部署模式：使用服务器导出（支持大量数据）
-        if (IS_DEPLOYED) {
-            window.open('/api/export/csv', '_blank');
+    // ========== 未付明细面板 ==========
+    function toggleUnpaidDetail() {
+        const panel = document.getElementById('unpaidDetailPanel');
+        if (panel.style.display === 'block') {
+            panel.style.display = 'none';
             return;
         }
-        // 本地模式：前端生成 CSV
+        const unpaidItems = transactions.filter(t => t.settlement === '未付');
+        if (unpaidItems.length === 0) {
+            document.getElementById('unpaidDetailContent').innerHTML = '<p style="color:#999;">暂无未付记录 👍</p>';
+        } else {
+            unpaidItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+            let html = '<table style="width:100%; font-size:0.8rem;"><tr><th>日期</th><th>类别</th><th>明细</th><th>金额</th><th>供应商</th></tr>';
+            unpaidItems.forEach(t => {
+                html += `<tr><td>${t.date}</td><td>${t.category || ''}</td><td>${t.item || ''}</td><td style="color:red;">¥${t.amount.toFixed(2)}</td><td><b>${t.note || '-'}</b></td></tr>`;
+            });
+            html += `<tr style="font-weight:700; background:#fff3cd;"><td colspan="3">合计</td><td style="color:red;">¥${unpaidItems.reduce((s,t)=>s+t.amount,0).toFixed(2)}</td><td>${unpaidItems.length}笔</td></tr>`;
+            html += '</table>';
+            document.getElementById('unpaidDetailContent').innerHTML = html;
+        }
+        panel.style.display = 'block';
+        panel.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ========== 导出与清空 ==========
+    function exportCSV() {
+        if (IS_DEPLOYED) { window.open('/api/export/csv', '_blank'); return; }
         let csv = '日期,类型,来源/类别,项目,金额,结算,备注\n';
         transactions.forEach(t => {
-            csv += `${t.date},${t.type},${t.type === 'income' ? t.source : (t.type === 'expense' ? t.category : '家庭')},${t.item || ''},${t.amount.toFixed(2)},${t.settlement || ''},${t.note || ''}\n`;
+            csv += `${t.date},${t.type},${t.type === 'income' ? (t.source||'') : (t.type === 'expense' ? (t.category||'') : '家庭')},${t.item || ''},${t.amount.toFixed(2)},${t.settlement || ''},${t.note || ''}\n`;
         });
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
@@ -1315,19 +1044,17 @@
                 document.getElementById('loginError').textContent = '请输入用户名和密码';
                 return;
             }
-            if (login(username, password)) {
+            if (await login(username, password)) {
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
                 document.getElementById('loginError').textContent = '';
-                // 部署模式：登录后刷新服务器数据
                 if (IS_DEPLOYED) {
-                    const [txData, ctData] = await Promise.all([apiGet('/api/transactions'), apiGet('/api/contacts')]);
-                    if (txData && Array.isArray(txData)) {
-                        transactions = txData.map(t => { const r = { ...t }; r.id = t._id || t.id; return r; });
-                    }
-                    if (ctData && Array.isArray(ctData)) {
-                        contacts = ctData.map(c => { const r = { ...c }; r.id = c._id || c.id; return r; });
-                    }
+                    const [txData, ctData, userData] = await Promise.all([
+                        apiGet('/api/transactions'), apiGet('/api/contacts'), apiGet('/api/users')
+                    ]);
+                    if (txData && Array.isArray(txData)) transactions = txData.map(t => { t.id = t._id || t.id; return t; });
+                    if (ctData && Array.isArray(ctData)) contacts = ctData.map(c => { c.id = c._id || c.id; return c; });
+                    if (userData && Array.isArray(userData)) users = userData;
                 }
                 applyUIPermissions();
                 renderAll();
@@ -1338,17 +1065,13 @@
         };
 
         // 回车登录
-        document.getElementById('loginPassword').onkeydown = (e) => {
-            if (e.key === 'Enter') document.getElementById('loginBtn').click();
-        };
-        document.getElementById('loginUsername').onkeydown = (e) => {
-            if (e.key === 'Enter') document.getElementById('loginPassword').focus();
-        };
+        document.getElementById('loginPassword').onkeydown = (e) => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); };
+        document.getElementById('loginUsername').onkeydown = (e) => { if (e.key === 'Enter') document.getElementById('loginPassword').focus(); };
 
-        // 退出登录
+        // 退出
         document.getElementById('logoutBtn').onclick = logout;
 
-        // 标签页切换
+        // 标签页
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1356,7 +1079,6 @@
                 document.querySelectorAll('.tab-content').forEach(div => div.style.display = 'none');
                 const target = document.getElementById(btn.getAttribute('data-tab'));
                 if (target) target.style.display = 'block';
-                // 切换到权限管理时刷新
                 if (btn.getAttribute('data-tab') === 'admin-tab') renderUserManagement();
             });
         });
@@ -1380,24 +1102,25 @@
         document.getElementById('clearDataBtn').onclick = clearAll;
 
         // 过滤搜索
-        document.getElementById('listFilterType').onchange = (e) => {
-            currentFilter.type = e.target.value;
-            renderTable();
-        };
-        document.getElementById('searchKeyword').oninput = (e) => {
-            currentFilter.keyword = e.target.value;
-            renderTable();
-        };
+        document.getElementById('listFilterType').onchange = (e) => { currentFilter.type = e.target.value; renderTable(); };
+        document.getElementById('searchKeyword').oninput = (e) => { currentFilter.keyword = e.target.value; renderTable(); };
 
         // 新增员工
         document.getElementById('addUserBtn').onclick = addNewUser;
+
+        // 未付卡片点击
+        document.getElementById('unpaidCard').onclick = toggleUnpaidDetail;
+
+        // 编辑模态框 - 点击遮罩关闭
+        document.getElementById('editModal').onclick = function(e) {
+            if (e.target === this) this.style.display = 'none';
+        };
     }
 
     // ========== 启动 ==========
     async function bootstrap() {
         await initData();
         bindEvents();
-        // 预填今天日期
         const todayStr = new Date().toISOString().split('T')[0];
         ['incomeDate', 'expenseDate', 'personalDate'].forEach(id => {
             const el = document.getElementById(id);
@@ -1406,7 +1129,6 @@
     }
 
     bootstrap();
-    // 注册 Service Worker（PWA 离线支持）
     if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
         navigator.serviceWorker.register('/sw.js');
     }

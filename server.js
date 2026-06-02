@@ -8,25 +8,33 @@ app.use(cors());
 app.use(express.json());
 
 // ========== 数据存储 ==========
-// 使用内存存储作为默认，如果配置了 MongoDB 则使用 MongoDB
 let useMongo = false;
-let Transaction, Contact;
+let Transaction, Contact, User;
 
 // 内存存储
 const memStore = {
     transactions: [],
     contacts: [],
+    users: [],
     _nextId: 1000
 };
-
 function genId() { return String(memStore._nextId++); }
+
+// 默认用户
+const DEFAULT_USERS = [
+    { username: 'admin', password: 'admin123', role: 'admin', permissions: { canAdd: true, canEdit: true, canDelete: true, canManageUsers: true } },
+    { username: 'staff', password: 'staff123', role: 'staff', permissions: { canAdd: true, canEdit: false, canDelete: false, canManageUsers: false } }
+];
+
+// 初始化内存用户
+memStore.users = JSON.parse(JSON.stringify(DEFAULT_USERS));
 
 // 尝试连接 MongoDB
 const MONGODB_URI = process.env.MONGODB_URI;
 if (MONGODB_URI) {
     const mongoose = require('mongoose');
     mongoose.connect(MONGODB_URI)
-        .then(() => {
+        .then(async () => {
             console.log('✅ MongoDB 连接成功，使用云端存储');
             useMongo = true;
 
@@ -45,9 +53,31 @@ if (MONGODB_URI) {
             const ContactSchema = new mongoose.Schema({
                 name: String,
                 type: String,          // 'customer' | 'supplier'
-                info: { type: String, default: '' }
+                info: { type: String, default: '' },
+                phone: { type: String, default: '' },
+                address: { type: String, default: '' }
             }, { timestamps: true });
             Contact = mongoose.model('Contact', ContactSchema);
+
+            const UserSchema = new mongoose.Schema({
+                username: { type: String, required: true, unique: true },
+                password: { type: String, required: true },
+                role: { type: String, default: 'staff' },
+                permissions: {
+                    canAdd: { type: Boolean, default: true },
+                    canEdit: { type: Boolean, default: false },
+                    canDelete: { type: Boolean, default: false },
+                    canManageUsers: { type: Boolean, default: false }
+                }
+            }, { timestamps: true });
+            User = mongoose.model('User', UserSchema);
+
+            // 初始化默认用户（如果不存在）
+            const adminExists = await User.findOne({ username: 'admin' });
+            if (!adminExists) {
+                await User.insertMany(DEFAULT_USERS);
+                console.log('✅ 默认用户已初始化');
+            }
         })
         .catch(err => {
             console.error('❌ MongoDB 连接失败:', err.message);
@@ -58,9 +88,113 @@ if (MONGODB_URI) {
     console.log('💡 提示: 设置 MONGODB_URI 环境变量以启用持久化存储');
 }
 
-// ========== API 路由 ==========
+// ========== 认证 API ==========
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) return res.status(400).json({ error: '缺少用户名或密码' });
 
-// --- 交易记录 ---
+        let user;
+        if (useMongo && User) {
+            user = await User.findOne({ username, password }).lean();
+        } else {
+            user = memStore.users.find(u => u.username === username && u.password === password);
+        }
+
+        if (user) {
+            const result = { ...user };
+            delete result.password;
+            delete result._id;
+            delete result.__v;
+            return res.json({ success: true, user: result });
+        }
+        res.status(401).json({ error: '用户名或密码错误' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ========== 用户管理 API ==========
+app.get('/api/users', async (req, res) => {
+    try {
+        if (useMongo && User) {
+            const data = await User.find().select('-password').lean();
+            return res.json(data);
+        }
+        const data = memStore.users.map(u => {
+            const { password, ...rest } = u;
+            return rest;
+        });
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/users', async (req, res) => {
+    try {
+        const { username, password, role, permissions } = req.body;
+        if (!username || !password) return res.status(400).json({ error: '缺少用户名或密码' });
+
+        if (useMongo && User) {
+            const exists = await User.findOne({ username });
+            if (exists) return res.status(400).json({ error: '用户名已存在' });
+            const doc = new User({ username, password, role: role || 'staff', permissions });
+            await doc.save();
+            const result = doc.toObject();
+            delete result.password;
+            return res.json({ success: true, user: result });
+        }
+        if (memStore.users.find(u => u.username === username)) {
+            return res.status(400).json({ error: '用户名已存在' });
+        }
+        const record = { username, password, role: role || 'staff', permissions: permissions || { canAdd: true, canEdit: false, canDelete: false, canManageUsers: false } };
+        memStore.users.push(record);
+        const { password: _, ...rest } = record;
+        res.json({ success: true, user: rest });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.put('/api/users/:username', async (req, res) => {
+    try {
+        const { password, role, permissions } = req.body;
+        if (useMongo && User) {
+            const update = {};
+            if (password) update.password = password;
+            if (role) update.role = role;
+            if (permissions) update.permissions = permissions;
+            const doc = await User.findOneAndUpdate({ username: req.params.username }, update, { new: true }).select('-password').lean();
+            if (!doc) return res.status(404).json({ error: '用户不存在' });
+            return res.json({ success: true, user: doc });
+        }
+        const user = memStore.users.find(u => u.username === req.params.username);
+        if (!user) return res.status(404).json({ error: '用户不存在' });
+        if (password) user.password = password;
+        if (role) user.role = role;
+        if (permissions) user.permissions = { ...user.permissions, ...permissions };
+        const { password: _, ...rest } = user;
+        res.json({ success: true, user: rest });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete('/api/users/:username', async (req, res) => {
+    try {
+        if (useMongo && User) {
+            await User.findOneAndDelete({ username: req.params.username });
+            return res.json({ success: true });
+        }
+        memStore.users = memStore.users.filter(u => u.username !== req.params.username);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ========== 交易记录 API ==========
 app.get('/api/transactions', async (req, res) => {
     try {
         if (useMongo && Transaction) {
@@ -101,6 +235,34 @@ app.post('/api/transactions', async (req, res) => {
     }
 });
 
+// 修改交易记录
+app.put('/api/transactions/:id', async (req, res) => {
+    try {
+        const { date, type, source, category, item, amount, settlement, note } = req.body;
+        if (useMongo && Transaction) {
+            const doc = await Transaction.findByIdAndUpdate(req.params.id, {
+                date, type, source, category, item, amount, settlement, note
+            }, { new: true }).lean();
+            if (!doc) return res.status(404).json({ error: '记录不存在' });
+            return res.json({ success: true, record: doc });
+        }
+        const idx = memStore.transactions.findIndex(t => t._id === req.params.id);
+        if (idx === -1) return res.status(404).json({ error: '记录不存在' });
+        const record = memStore.transactions[idx];
+        if (date !== undefined) record.date = date;
+        if (type !== undefined) record.type = type;
+        if (source !== undefined) record.source = source;
+        if (category !== undefined) record.category = category;
+        if (item !== undefined) record.item = item;
+        if (amount !== undefined) record.amount = Number(amount);
+        if (settlement !== undefined) record.settlement = settlement;
+        if (note !== undefined) record.note = note;
+        res.json({ success: true, record });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.delete('/api/transactions/:id', async (req, res) => {
     try {
         if (useMongo && Transaction) {
@@ -129,7 +291,7 @@ app.delete('/api/transactions', async (req, res) => {
     }
 });
 
-// --- 联系人 ---
+// ========== 联系人 API ==========
 app.get('/api/contacts', async (req, res) => {
     try {
         if (useMongo && Contact) {
@@ -144,15 +306,37 @@ app.get('/api/contacts', async (req, res) => {
 
 app.post('/api/contacts', async (req, res) => {
     try {
-        const { name, type, info } = req.body;
+        const { name, type, info, phone, address } = req.body;
         if (!name) return res.status(400).json({ error: '缺少名称' });
         if (useMongo && Contact) {
-            const doc = new Contact({ name, type: type || 'customer', info: info || '' });
+            const doc = new Contact({ name, type: type || 'customer', info: info || '', phone: phone || '', address: address || '' });
             await doc.save();
             return res.json({ success: true, record: doc.toObject() });
         }
-        const record = { _id: genId(), name, type: type || 'customer', info: info || '' };
+        const record = { _id: genId(), name, type: type || 'customer', info: info || '', phone: phone || '', address: address || '' };
         memStore.contacts.push(record);
+        res.json({ success: true, record });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.put('/api/contacts/:id', async (req, res) => {
+    try {
+        const { name, type, info, phone, address } = req.body;
+        if (useMongo && Contact) {
+            const doc = await Contact.findByIdAndUpdate(req.params.id, { name, type, info, phone, address }, { new: true }).lean();
+            if (!doc) return res.status(404).json({ error: '联系人不存在' });
+            return res.json({ success: true, record: doc });
+        }
+        const idx = memStore.contacts.findIndex(c => c._id === req.params.id);
+        if (idx === -1) return res.status(404).json({ error: '联系人不存在' });
+        const record = memStore.contacts[idx];
+        if (name !== undefined) record.name = name;
+        if (type !== undefined) record.type = type;
+        if (info !== undefined) record.info = info;
+        if (phone !== undefined) record.phone = phone;
+        if (address !== undefined) record.address = address;
         res.json({ success: true, record });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -174,7 +358,40 @@ app.delete('/api/contacts/:id', async (req, res) => {
     }
 });
 
-// --- 健康检查 ---
+// ========== 查询统计 API ==========
+// 未付应付款按供应商汇总
+app.get('/api/query/unpaid-by-supplier', async (req, res) => {
+    try {
+        if (useMongo && Transaction) {
+            const data = await Transaction.aggregate([
+                { $match: { type: 'expense', settlement: '未付' } },
+                { $group: { _id: '$note', total: { $sum: '$amount' }, count: { $sum: 1 }, items: { $push: { date: '$date', item: '$item', amount: '$amount', category: '$category' } } } },
+                { $sort: { total: -1 } }
+            ]);
+            return res.json(data.map(d => ({
+                supplier: d._id || '未指定供应商',
+                total: d.total,
+                count: d.count,
+                items: d.items
+            })));
+        }
+        const group = {};
+        memStore.transactions.filter(t => t.type === 'expense' && t.settlement === '未付').forEach(t => {
+            const key = t.note || '未指定供应商';
+            if (!group[key]) group[key] = { total: 0, count: 0, items: [] };
+            group[key].total += t.amount;
+            group[key].count++;
+            group[key].items.push({ date: t.date, item: t.item, amount: t.amount, category: t.category, id: t._id });
+        });
+        const result = Object.entries(group).map(([supplier, data]) => ({ supplier, ...data }))
+            .sort((a, b) => b.total - a.total);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ========== 健康检查 ==========
 app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
@@ -184,7 +401,7 @@ app.get('/health', (req, res) => {
     });
 });
 
-// --- 导出 CSV ---
+// ========== 导出 CSV ==========
 app.get('/api/export/csv', async (req, res) => {
     try {
         let data;
@@ -207,7 +424,6 @@ app.get('/api/export/csv', async (req, res) => {
 });
 
 // ========== 静态文件 ==========
-// 从当前目录（E:\public）提供静态文件
 app.use(express.static(__dirname));
 
 // SPA fallback: 所有非 API 路径返回 index.html
