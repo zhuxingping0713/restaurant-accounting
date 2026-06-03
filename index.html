@@ -510,7 +510,7 @@
                     if (!user.permissions) user.permissions = {};
                     user.permissions[perm] = cb.checked;
                     if (IS_DEPLOYED) {
-                        await apiPut('/api/users/' + username, { permissions: user.permissions });
+                        await apiPut('/api/users/' + encodeURIComponent(username), { permissions: user.permissions });
                     } else { saveToLocal(); }
                 }
             });
@@ -524,7 +524,7 @@
             btn.onclick = async () => {
                 const username = btn.getAttribute('data-user');
                 if (confirm(`确定删除用户 "${username}" 吗？`)) {
-                    if (IS_DEPLOYED) await apiDelete('/api/users/' + username);
+                    if (IS_DEPLOYED) await apiDelete('/api/users/' + encodeURIComponent(username));
                     users = users.filter(u => u.username !== username);
                     saveToLocal();
                     renderUserManagement();
@@ -564,7 +564,7 @@
             const newPwd = prompt(`为用户 "${username}" 输入新密码:`, '');
             if (!newPwd || !newPwd.trim()) { alert('密码不能为空。'); return; }
             user.password = newPwd.trim();
-            if (IS_DEPLOYED) apiPut('/api/users/' + username, { password: newPwd.trim() });
+            if (IS_DEPLOYED) apiPut('/api/users/' + encodeURIComponent(username), { password: newPwd.trim() });
             saveToLocal();
             renderUserManagement();
             alert('密码已修改。');
@@ -596,7 +596,7 @@
             const updateData = {};
             if (changeName) updateData.username = user.username;
             if (changePwd) updateData.password = user.password;
-            apiPut('/api/users/' + username, updateData);
+            apiPut('/api/users/' + encodeURIComponent(username), updateData);
         }
         saveToLocal();
         renderUserManagement();
