@@ -72,9 +72,9 @@ if (MONGODB_URI) {
             }, { timestamps: true });
             User = mongoose.model('User', UserSchema);
 
-            // 初始化默认用户（如果不存在）
-            const adminExists = await User.findOne({ username: 'admin' });
-            if (!adminExists) {
+            // 初始化默认用户（仅在数据库为空时）
+            const userCount = await User.countDocuments();
+            if (userCount === 0) {
                 await User.insertMany(DEFAULT_USERS);
                 console.log('✅ 默认用户已初始化');
             }
